@@ -11,6 +11,10 @@ from pyfr.polys import get_polybasis
 from pyfr.quadrules import get_quadrule
 from pyfr.util import lazyprop
 
+# for loading SD m3 matrix
+from io import BytesIO
+import pkgutil
+
 
 def _proj_pts(projector, pts):
     pts = np.atleast_2d(pts.T)
@@ -105,7 +109,12 @@ class BaseShape(object):
 
     @lazyprop
     def m3(self):
-        m = self.gbasis_at(self.upts)
+        #m = self.gbasis_at(self.upts)
+
+        # load SD m3 matrix
+        fobj = BytesIO(pkgutil.get_data(__name__, 'hex-gleg-ord3-csd.npz'))
+        refm = np.load(fobj)
+        m = refm['m3']
 
         if 'surf-flux' in self.antialias:
             fp = [_proj_l2(self._iqrules[kind], self.facebases[kind])
